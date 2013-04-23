@@ -72,7 +72,7 @@ boardGet2 b y x
   | otherwise					     = Nothing
 
 numTiles :: Board -> Int
-numTiles b = width b * (height b)
+numTiles b = width b * height b
 
 yxToN :: Int -> Int -> Board -> Int
 yxToN y x b = (y * width b) + x
@@ -168,11 +168,11 @@ floodZeroHelper oldb b
     getNeighbor x y deltas = boardGet2 b (y + fst deltas) (x + snd deltas)
         
     -- Unhide tile if # of neighbors who are revealed 0s is >0
-    process []                               _ _                           = []
+    process []                               _ _                         = []
     process (Tile (Touching n) mkd hdn:ts) x y
-      | (length . filter isZero $ map (getNeighbor x y) neighborMoves) > 0 = Tile (Touching n) mkd False : process ts x' y' where
+      | not $ null . filter isZero $ map (getNeighbor x y) neighborMoves = Tile (Touching n) mkd False : process ts x' y' where
           (x', y') = nextCoord x y
-    process (t:ts)                           x y                           = t                           : process ts x' y' where
+    process (t:ts)                           x y                         = t                           : process ts x' y' where
           (x', y') = nextCoord x y
     
     t' = process (tiles b) 0 0
@@ -195,7 +195,7 @@ getGameState = analyse . tiles where
   check _ 						= Unknown
   
   analyse ts =
-    case (foldl' f Unknown $ map check ts) of 
+    case foldl' f Unknown $ map check ts of 
      Unknown -> Win
      a       -> a
     where
@@ -208,7 +208,7 @@ getGameState = analyse . tiles where
                     
 runGame :: Board -> IO ()
 runGame b =
-  case (getGameState b) of
+  case getGameState b of
     Loss -> do
     	print  b
     	print "You lose."
