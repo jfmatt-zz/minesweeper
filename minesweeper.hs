@@ -168,11 +168,11 @@ floodZeroHelper oldb b
     getNeighbor x y deltas = boardGet2 b (y + fst deltas) (x + snd deltas)
         
     -- Unhide tile if # of neighbors who are revealed 0s is >0
-    process []                               _ _                         = []
+    process []                               _ _         = []
     process (Tile (Touching n) mkd hdn:ts) x y
-      | not $ null . filter isZero $ map (getNeighbor x y) neighborMoves = Tile (Touching n) mkd False : process ts x' y' where
+      | any isZero $ map (getNeighbor x y) neighborMoves = Tile (Touching n) mkd False : process ts x' y' where
           (x', y') = nextCoord x y
-    process (t:ts)                           x y                         = t                           : process ts x' y' where
+    process (t:ts)                           x y         = t                           : process ts x' y' where
           (x', y') = nextCoord x y
     
     t' = process (tiles b) 0 0
